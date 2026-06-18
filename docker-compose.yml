@@ -1,0 +1,77 @@
+# docker-compose.yml
+#
+# WHY THIS FILE EXISTS:
+# Instead of installing PostgreSQL directly on your Mac,
+# we run it inside Docker. This means:
+# - Clean uninstall: just delete the container
+# - Exact same version everywhere (your Mac, staging, production)
+# - One command starts everything: docker-compose up -d
+
+
+services:
+
+  # ── PostgreSQL Database ──────────────────────────────────────────
+  postgres:
+    # Official PostgreSQL image version 15
+    # We pin the version (15) not use "latest"
+    # "latest" could auto-upgrade and break your app
+    image: postgres:15-alpine
+
+    # Container name — used to reference this service
+    container_name: dentos_postgres
+
+    # Always restart if it crashes
+    restart: unless-stopped
+
+    # Database credentials
+    # These match what we'll put in DATABASE_URL in .env
+    environment:
+      POSTGRES_USER: dentos
+      POSTGRES_PASSWORD: dentos_secret_2024
+      POSTGRES_DB: dentos_ai
+
+    # Port mapping: your Mac port 5432 → container port 5432
+    # Format: "HOST_PORT:CONTAINER_PORT"
+    # This lets you connect from your Mac to the container
+    ports:
+      - "5432:5432"
+
+    # Named volume: data persists even when container restarts
+    # Without this, ALL your data is deleted when container stops
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    # Health check: Docker verifies PostgreSQL is actually ready
+    # Not just running — but accepting connections
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dentos -d dentos_ai"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── pgAdmin — Visual Database Browser ───────────────────────────
+  # pgAdmin lets you see your database tables visually in a browser
+  # Like a GUI for your database — very helpful while learning
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: dentos_pgadmin
+    restart: unless-stopped
+
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@dentos.ai
+      PGADMIN_DEFAULT_PASSWORD: admin123
+
+    ports:
+      # pgAdmin runs at http://localhost:5050
+      - "5050:80"
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+# ── Volumes ───────────────────────────────────────────────────────
+# Named volumes are managed by Docker
+# Data survives container restarts and removals
+volumes:
+  postgres_data:
+    name: dentos_postgres_data
