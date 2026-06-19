@@ -14,17 +14,18 @@ enum Role {
 }
 
 model Clinic {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   name      String
   address   String?
   phone     String?
   email     String?
   gstNumber String?
   logoUrl   String?
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   users     User[]
+  patients  Patient[]
 }
 
 model User {
@@ -56,4 +57,29 @@ model RefreshToken {
 
   @@index([userId])
   @@index([token])
+}
+
+model Patient {
+  id                String    @id @default(cuid())
+  clinicId          String
+  patientCode       String
+  name              String
+  phone             String
+  email             String?
+  dateOfBirth       DateTime?
+  gender            String?
+  address           String?
+  medicalHistory    String?
+  allergies         String?
+  bloodGroup        String?
+  emergencyContact  String?
+  preferredLanguage String    @default("ENGLISH")
+  isActive          Boolean   @default(true)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  clinic            Clinic    @relation(fields: [clinicId], references: [id])
+
+  @@unique([clinicId, patientCode])
+  @@index([clinicId])
+  @@index([phone])
 }
