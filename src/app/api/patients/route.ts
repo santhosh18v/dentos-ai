@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-// GET /api/patients — list all patients for a clinic
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const search = searchParams.get("search") || "";
-    const clinicId = searchParams.get("clinicId") || "clinic001";
+    const clinicId = "clinic001";
 
     const patients = await prisma.patient.findMany({
       where: {
@@ -16,7 +15,6 @@ export async function GET(request: NextRequest) {
           ? [
               { name: { contains: search, mode: "insensitive" } },
               { phone: { contains: search } },
-              { email: { contains: search, mode: "insensitive" } },
             ]
           : undefined,
       },
@@ -33,7 +31,6 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST /api/patients — create new patient
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -60,9 +57,19 @@ export async function POST(request: NextRequest) {
 
     const clinicId = "clinic001";
 
-    // Count existing patients to generate patient code
-    const count = await prisma.patient.count({ where: { clinicId } });
-    const patientCode = `SMC-${String(count + 1).padStart(3, "0")}`;
+    // Find the highest existing patient code, then increment (collision-proof)
+    const lastPatient = await prisma.patient.findFirst({
+      where: { clinicId },
+      orderBy: { patientCode: "desc" },
+      select: { patientCode: true },
+    });
+
+    let nextNum = 1;
+    if (lastPatient?.patientCode) {
+      const match = lastPatient.patientCode.match(/(\d+)$/);
+      if (match) nextNum = parseInt(match[1], 10) + 1;
+    }
+    const patientCode = `SMC-${String(nextNum).padStart(3, "0")}`;
 
     const patient = await prisma.patient.create({
       data: {
