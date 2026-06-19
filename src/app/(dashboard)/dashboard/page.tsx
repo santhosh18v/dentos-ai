@@ -91,7 +91,7 @@ export default function DashboardPage() {
   ];
 
   return (
-    <div>
+    <div className="min-h-full bg-gray-950">
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-white">Good morning, Dr. Sharma</h1>
         <p className="text-gray-400 text-sm mt-1">SmileCare Dental Clinic · {dateLabel}</p>

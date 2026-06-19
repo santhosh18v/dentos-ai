@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 
 const navItems = [
-  { label: "Dashboard", href: "/", icon: "▪" },
+  { label: "Dashboard", href: "/dashboard", icon: "▪" },
   { label: "Patients", href: "/patients", icon: "▪" },
   { label: "Appointments", href: "/appointments", icon: "▪" },
   { label: "Clinical Notes", href: "/clinical-notes", icon: "▪" },
@@ -71,7 +71,7 @@ export default function DashboardLayout({
       </aside>
 
       {/* Main Content */}
-      <main className="ml-56 flex-1 p-6">
+      <main className="ml-56 flex-1 p-6 bg-gray-950">
         {children}
       </main>
     </div>
