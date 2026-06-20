@@ -19,6 +19,24 @@ enum AppointmentStatus {
   COMPLETED
   CANCELLED
   NO_SHOW
+  NEEDS_FOLLOWUP
+}
+
+enum CallStatus {
+  INITIATED
+  RINGING
+  ANSWERED
+  COMPLETED
+  NO_ANSWER
+  FAILED
+}
+
+enum CallIntent {
+  CONFIRM
+  CANNOT_ATTEND
+  CALL_ME_BACK
+  HUMAN_ASSISTANCE
+  REPEAT
 }
 
 model Clinic {
@@ -35,6 +53,7 @@ model Clinic {
   users        User[]
   patients     Patient[]
   appointments Appointment[]
+  callLogs     CallLog[]
 }
 
 model User {
@@ -89,6 +108,7 @@ model Patient {
   updatedAt         DateTime      @updatedAt
   clinic            Clinic        @relation(fields: [clinicId], references: [id])
   appointments      Appointment[]
+  callLogs          CallLog[]
 
   @@unique([clinicId, patientCode])
   @@index([clinicId])
@@ -108,12 +128,38 @@ model Appointment {
   createdAt     DateTime          @default(now())
   updatedAt     DateTime          @updatedAt
 
-  clinic  Clinic  @relation(fields: [clinicId], references: [id])
-  patient Patient @relation(fields: [patientId], references: [id])
-  dentist User    @relation("DentistAppointments", fields: [dentistId], references: [id])
+  clinic   Clinic    @relation(fields: [clinicId], references: [id])
+  patient  Patient   @relation(fields: [patientId], references: [id])
+  dentist  User      @relation("DentistAppointments", fields: [dentistId], references: [id])
+  callLogs CallLog[]
 
   @@index([clinicId])
   @@index([patientId])
   @@index([dentistId])
   @@index([scheduledAt])
+}
+
+model CallLog {
+  id            String      @id @default(cuid())
+  clinicId      String
+  appointmentId String
+  patientId     String
+  phoneNumber   String
+  status        CallStatus  @default(INITIATED)
+  intent        CallIntent?
+  reason        String?
+  transcript    String?
+  durationSecs  Int?
+  needsFollowup Boolean     @default(false)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  clinic      Clinic      @relation(fields: [clinicId], references: [id])
+  appointment Appointment @relation(fields: [appointmentId], references: [id])
+  patient     Patient     @relation(fields: [patientId], references: [id])
+
+  @@index([clinicId])
+  @@index([appointmentId])
+  @@index([patientId])
+  @@index([status])
 }
