@@ -40,20 +40,21 @@ enum CallIntent {
 }
 
 model Clinic {
-  id           String        @id @default(cuid())
-  name         String
-  address      String?
-  phone        String?
-  email        String?
-  gstNumber    String?
-  logoUrl      String?
-  isActive     Boolean       @default(true)
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  users        User[]
-  patients     Patient[]
-  appointments Appointment[]
-  callLogs     CallLog[]
+  id            String         @id @default(cuid())
+  name          String
+  address       String?
+  phone         String?
+  email         String?
+  gstNumber     String?
+  logoUrl       String?
+  isActive      Boolean        @default(true)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  users         User[]
+  patients      Patient[]
+  appointments  Appointment[]
+  callLogs      CallLog[]
+  clinicalNotes ClinicalNote[]
 }
 
 model User {
@@ -70,6 +71,7 @@ model User {
   clinic        Clinic         @relation(fields: [clinicId], references: [id])
   refreshTokens RefreshToken[]
   appointments  Appointment[]  @relation("DentistAppointments")
+  clinicalNotes ClinicalNote[] @relation("DentistNotes")
 
   @@index([clinicId])
   @@index([email])
@@ -89,7 +91,7 @@ model RefreshToken {
 }
 
 model Patient {
-  id                String        @id @default(cuid())
+  id                String         @id @default(cuid())
   clinicId          String
   patientCode       String
   name              String
@@ -102,13 +104,14 @@ model Patient {
   allergies         String?
   bloodGroup        String?
   emergencyContact  String?
-  preferredLanguage String        @default("ENGLISH")
-  isActive          Boolean       @default(true)
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
-  clinic            Clinic        @relation(fields: [clinicId], references: [id])
+  preferredLanguage String         @default("ENGLISH")
+  isActive          Boolean        @default(true)
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  clinic            Clinic         @relation(fields: [clinicId], references: [id])
   appointments      Appointment[]
   callLogs          CallLog[]
+  clinicalNotes     ClinicalNote[]
 
   @@unique([clinicId, patientCode])
   @@index([clinicId])
@@ -128,10 +131,11 @@ model Appointment {
   createdAt     DateTime          @default(now())
   updatedAt     DateTime          @updatedAt
 
-  clinic   Clinic    @relation(fields: [clinicId], references: [id])
-  patient  Patient   @relation(fields: [patientId], references: [id])
-  dentist  User      @relation("DentistAppointments", fields: [dentistId], references: [id])
-  callLogs CallLog[]
+  clinic        Clinic         @relation(fields: [clinicId], references: [id])
+  patient       Patient        @relation(fields: [patientId], references: [id])
+  dentist       User           @relation("DentistAppointments", fields: [dentistId], references: [id])
+  callLogs      CallLog[]
+  clinicalNotes ClinicalNote[]
 
   @@index([clinicId])
   @@index([patientId])
@@ -162,4 +166,35 @@ model CallLog {
   @@index([appointmentId])
   @@index([patientId])
   @@index([status])
+}
+
+model ClinicalNote {
+  id               String    @id @default(cuid())
+  clinicId         String
+  appointmentId    String
+  patientId        String
+  dentistId        String
+  chiefComplaint   String?
+  clinicalFindings String?
+  assessment       String?
+  treatmentPlan    String?
+  treatmentDone    String?
+  prescription     String?
+  followUpDate     DateTime?
+  rawTranscript    String?
+  aiGenerated      Boolean   @default(false)
+  isApproved       Boolean   @default(false)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  clinic      Clinic      @relation(fields: [clinicId], references: [id])
+  appointment Appointment @relation(fields: [appointmentId], references: [id])
+  patient     Patient     @relation(fields: [patientId], references: [id])
+  dentist     User        @relation("DentistNotes", fields: [dentistId], references: [id])
+
+  @@index([clinicId])
+  @@index([appointmentId])
+  @@index([patientId])
+  @@index([dentistId])
+  @@index([isApproved])
 }
