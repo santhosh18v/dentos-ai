@@ -39,6 +39,21 @@ enum CallIntent {
   REPEAT
 }
 
+enum InvoiceStatus {
+  DRAFT
+  SENT
+  PARTIALLY_PAID
+  PAID
+  CANCELLED
+}
+
+enum PaymentMethod {
+  CASH
+  UPI
+  CARD
+  BANK_TRANSFER
+}
+
 model Clinic {
   id            String         @id @default(cuid())
   name          String
@@ -55,6 +70,7 @@ model Clinic {
   appointments  Appointment[]
   callLogs      CallLog[]
   clinicalNotes ClinicalNote[]
+  invoices      Invoice[]
 }
 
 model User {
@@ -112,6 +128,7 @@ model Patient {
   appointments      Appointment[]
   callLogs          CallLog[]
   clinicalNotes     ClinicalNote[]
+  invoices          Invoice[]
 
   @@unique([clinicId, patientCode])
   @@index([clinicId])
@@ -136,6 +153,7 @@ model Appointment {
   dentist       User           @relation("DentistAppointments", fields: [dentistId], references: [id])
   callLogs      CallLog[]
   clinicalNotes ClinicalNote[]
+  invoices      Invoice[]
 
   @@index([clinicId])
   @@index([patientId])
@@ -197,4 +215,61 @@ model ClinicalNote {
   @@index([patientId])
   @@index([dentistId])
   @@index([isApproved])
+}
+
+model Invoice {
+  id            String            @id @default(cuid())
+  clinicId      String
+  patientId     String
+  appointmentId String?
+  invoiceNumber String
+  subtotal      Decimal           @db.Decimal(10, 2)
+  gstRate       Decimal           @default(18.00) @db.Decimal(5, 2)
+  gstAmount     Decimal           @db.Decimal(10, 2)
+  total         Decimal           @db.Decimal(10, 2)
+  amountPaid    Decimal           @default(0.00) @db.Decimal(10, 2)
+  status        InvoiceStatus     @default(DRAFT)
+  notes         String?
+  issuedAt      DateTime          @default(now())
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  clinic      Clinic             @relation(fields: [clinicId], references: [id])
+  patient     Patient            @relation(fields: [patientId], references: [id])
+  appointment Appointment?       @relation(fields: [appointmentId], references: [id])
+  lineItems   InvoiceLineItem[]
+  payments    Payment[]
+
+  @@unique([clinicId, invoiceNumber])
+  @@index([clinicId])
+  @@index([patientId])
+  @@index([status])
+}
+
+model InvoiceLineItem {
+  id          String   @id @default(cuid())
+  invoiceId   String
+  description String
+  quantity    Int      @default(1)
+  unitPrice   Decimal  @db.Decimal(10, 2)
+  lineTotal   Decimal  @db.Decimal(10, 2)
+  createdAt   DateTime @default(now())
+
+  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId])
+}
+
+model Payment {
+  id        String        @id @default(cuid())
+  invoiceId String
+  amount    Decimal       @db.Decimal(10, 2)
+  method    PaymentMethod @default(CASH)
+  reference String?
+  paidAt    DateTime      @default(now())
+  createdAt DateTime      @default(now())
+
+  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId])
 }
