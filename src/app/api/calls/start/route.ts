@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
       where: {
         clinicId: CLINIC_ID,
         scheduledAt: { gte: start, lt: end },
-        status: { in: ["SCHEDULED", "CONFIRMED"] },
+        status: "SCHEDULED",
       },
       include: {
         patient: { select: { id: true, name: true, phone: true } },
