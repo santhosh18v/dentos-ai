@@ -6,7 +6,8 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Plus, Trash2, Receipt, IndianRupee } from "lucide-react";
+import { Plus, Trash2, Receipt, IndianRupee, Download } from "lucide-react";
+import { generateInvoicePdf } from "@/lib/pdf/invoice-pdf";
 
 const GST_RATE = 18;
 
@@ -249,7 +250,10 @@ export default function BillingPage() {
             <Card className="p-5 space-y-4">
               <div className="flex items-center justify-between">
                 <h2 className="font-semibold">{selected.invoiceNumber}</h2>
-                <Button variant="ghost" size="sm" onClick={() => setSelected(null)}>← Back</Button>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" onClick={() => generateInvoicePdf(selected)}><Download className="mr-1 h-3 w-3" /> PDF</Button>
+                  <Button variant="ghost" size="sm" onClick={() => setSelected(null)}>← Back</Button>
+                </div>
               </div>
               <div className="text-sm">
                 <div className="font-medium">{selected.patient.name}</div>
