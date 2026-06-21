@@ -30,15 +30,19 @@ function todayStr() {
 export default function DashboardPage() {
   const [patientCount, setPatientCount] = useState<number | null>(null);
   const [todays, setTodays] = useState<Appointment[]>([]);
+  const [monthlyRevenue, setMonthlyRevenue] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function load() {
       try {
-        const [pRes, aRes] = await Promise.all([
+        const [pRes, aRes, sRes] = await Promise.all([
           fetch("/api/patients"),
           fetch(`/api/appointments?date=${todayStr()}`),
+          fetch("/api/invoices/stats"),
         ]);
+        const sData = await sRes.json();
+        setMonthlyRevenue(sData.data?.monthlyRevenue ?? 0);
         const pData = await pRes.json();
         const aData = await aRes.json();
         const patients = pData.data || pData.patients || [];
@@ -84,9 +88,8 @@ export default function DashboardPage() {
     },
     {
       label: "Monthly Revenue",
-      value: "—",
-      color: "text-gray-500",
-      hint: "Coming in Phase 7",
+      value: monthlyRevenue === null ? "…" : `₹${monthlyRevenue.toLocaleString("en-IN")}`,
+      color: "text-emerald-400",
     },
   ];
 
