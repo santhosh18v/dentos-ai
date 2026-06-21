@@ -63,6 +63,10 @@ model Clinic {
   gstNumber     String?
   logoUrl       String?
   isActive      Boolean        @default(true)
+  workingDays   String?
+  openingTime   String?
+  closingTime   String?
+  aboutInfo     String?
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   users         User[]
@@ -71,6 +75,7 @@ model Clinic {
   callLogs      CallLog[]
   clinicalNotes ClinicalNote[]
   invoices      Invoice[]
+  services      ClinicService[]
 }
 
 model User {
@@ -272,4 +277,20 @@ model Payment {
   invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
 
   @@index([invoiceId])
+}
+
+model ClinicService {
+  id          String   @id @default(cuid())
+  clinicId    String
+  name        String
+  price       Decimal  @db.Decimal(10, 2)
+  description String?
+  category    String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  clinic Clinic @relation(fields: [clinicId], references: [id])
+
+  @@index([clinicId])
 }
