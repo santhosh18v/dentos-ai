@@ -41,6 +41,12 @@ const CALL_STATUS_COLORS: Record<string, string> = {
   FAILED: "bg-red-100 text-red-800",
 };
 
+const WINDOW_LABEL: Record<number, string> = {
+  7: "one week before",
+  3: "three days before",
+  1: "one day before",
+};
+
 const INTENT_COLORS: Record<string, string> = {
   CONFIRM: "bg-emerald-100 text-emerald-800",
   CANNOT_ATTEND: "bg-orange-100 text-orange-800",
@@ -54,6 +60,7 @@ export default function VoiceAssistantPage() {
   const [loading, setLoading] = useState(true);
   const [starting, setStarting] = useState(false);
   const [message, setMessage] = useState("");
+  const [daysAhead, setDaysAhead] = useState(3);
 
   async function loadCalls() {
     try {
@@ -78,13 +85,14 @@ export default function VoiceAssistantPage() {
       const res = await fetch("/api/calls/start", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({}), // defaults to tomorrow
+        body: JSON.stringify({ daysAhead }),
       });
       const data = await res.json();
+      const windowLabel = WINDOW_LABEL[daysAhead] || `${daysAhead} days ahead`;
       setMessage(
         data.count > 0
-          ? `Started ${data.count} reminder call(s) for tomorrow.`
-          : "No appointments to call for tomorrow."
+          ? `Started ${data.count} reminder call(s) for patients ${windowLabel}.`
+          : `No appointments to call ${windowLabel}.`
       );
       await loadCalls();
     } catch {
@@ -117,10 +125,21 @@ export default function VoiceAssistantPage() {
           <h1 className="text-2xl font-bold">Voice Assistant</h1>
           <p className="text-muted-foreground">AI appointment confirmation calls (Telugu / English)</p>
         </div>
-        <Button onClick={startCalls} disabled={starting}>
-          <PhoneCall className="mr-2 h-4 w-4" />
-          {starting ? "Starting..." : "Start Reminder Calls"}
-        </Button>
+        <div className="flex items-center gap-2">
+          <select
+            className="rounded-md border bg-background px-3 py-2 text-sm"
+            value={daysAhead}
+            onChange={(e) => setDaysAhead(Number(e.target.value))}
+          >
+            <option value={7}>1 week before</option>
+            <option value={3}>3 days before</option>
+            <option value={1}>1 day before</option>
+          </select>
+          <Button onClick={startCalls} disabled={starting}>
+            <PhoneCall className="mr-2 h-4 w-4" />
+            {starting ? "Starting..." : "Start Reminder Calls"}
+          </Button>
+        </div>
       </div>
 
       {message && (

@@ -5,16 +5,31 @@ import { telephony } from "@/lib/telephony";
 const CLINIC_ID = "clinic001";
 
 // POST /api/calls/start
-// Body (optional): { date: "YYYY-MM-DD" }  — defaults to tomorrow
-// Finds appointments for that day and initiates a reminder call for each.
+// Body (optional): { daysAhead?: number, date?: "YYYY-MM-DD" }
+//   daysAhead — call patients whose appointment is N days from today
+//               (e.g. 7 = one week before, 3 = three days before, 1 = tomorrow).
+//   date      — explicit day override (takes precedence if provided).
+//   Defaults to 1 (tomorrow) if neither is given.
+// Finds SCHEDULED appointments on that day and initiates a reminder call for each.
 export async function POST(request: NextRequest) {
   try {
-    let targetDate: Date;
+    let daysAhead = 1;
+    let explicitDate: string | null = null;
     try {
       const body = await request.json();
-      targetDate = body?.date ? new Date(body.date) : tomorrow();
+      if (typeof body?.daysAhead === "number") daysAhead = body.daysAhead;
+      if (body?.date) explicitDate = body.date;
     } catch {
-      targetDate = tomorrow();
+      // no body — keep defaults
+    }
+
+    // Determine the target day: explicit date wins, else today + daysAhead
+    let targetDate: Date;
+    if (explicitDate) {
+      targetDate = new Date(explicitDate);
+    } else {
+      targetDate = new Date();
+      targetDate.setDate(targetDate.getDate() + daysAhead);
     }
 
     const start = new Date(targetDate);
@@ -69,13 +84,13 @@ export async function POST(request: NextRequest) {
           patient: { select: { name: true } },
         },
       });
-
       results.push(updated);
     }
 
     return NextResponse.json({
       success: true,
       count: results.length,
+      daysAhead: explicitDate ? null : daysAhead,
       calls: results,
     });
   } catch (error) {
@@ -85,10 +100,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-}
-
-function tomorrow(): Date {
-  const d = new Date();
-  d.setDate(d.getDate() + 1);
-  return d;
 }
