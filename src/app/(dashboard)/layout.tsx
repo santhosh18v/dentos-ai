@@ -24,6 +24,12 @@ export default function DashboardLayout({
 }) {
   const pathname = usePathname();
 
+  function handleLogout() {
+    // Clear the auth cookie and hard-redirect to login (proxy + guard see no cookie)
+    document.cookie = "access_token=; path=/; max-age=0";
+    window.location.href = "/login";
+  }
+
   return (
     <div className="flex min-h-screen bg-gray-950">
       {/* Sidebar */}
@@ -70,6 +76,12 @@ export default function DashboardLayout({
               <div className="text-gray-500 text-xs">Clinic Admin</div>
             </div>
           </div>
+          <button
+            onClick={handleLogout}
+            className="mt-3 w-full text-left text-xs text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg px-3 py-2 transition-colors"
+          >
+            Sign out
+          </button>
         </div>
       </aside>
 

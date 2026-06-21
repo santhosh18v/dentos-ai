@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
@@ -9,6 +9,14 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // If already authenticated, don't show the login form — bounce to dashboard.
+  // This fixes the browser Back button landing on /login after login.
+  useEffect(() => {
+    if (document.cookie.split("; ").some((c) => c.startsWith("access_token="))) {
+      window.location.replace("/");
+    }
+  }, []);
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -33,8 +41,8 @@ export default function LoginPage() {
       // Store token in cookie
       document.cookie = `access_token=${data.data.accessToken}; path=/; max-age=900`;
 
-      // Redirect to dashboard
-      router.push("/");
+      // Hard navigation so the proxy sees the cookie immediately (no flash)
+      window.location.href = "/";
 
     } catch {
       setError("Something went wrong. Please try again.");
