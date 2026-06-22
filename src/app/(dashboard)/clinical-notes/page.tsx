@@ -62,6 +62,16 @@ export default function ClinicalNotesPage() {
     setNotes(nData.data || []);
   }
 
+  // Role guard: only DENTIST and CLINIC_ADMIN may view clinical notes.
+  // A receptionist who types the URL directly is redirected to the dashboard.
+  useEffect(() => {
+    const c = document.cookie.split("; ").find((x) => x.startsWith("user_role="));
+    const role = c ? c.split("=")[1] : "";
+    if (role !== "CLINIC_ADMIN" && role !== "DENTIST") {
+      window.location.replace("/dashboard");
+    }
+  }, []);
+
   useEffect(() => { loadAll(); }, []);
 
   async function generate() {

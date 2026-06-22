@@ -7,7 +7,9 @@ import { noteStructurer } from "@/lib/clinical";
 // GET /api/clinical-notes — list notes for the page
 export async function GET(request: NextRequest) {
   try {
-    const { clinicId } = getRoleFromRequest(request);
+    const { payload, forbidden } = requireRole(request, ["CLINIC_ADMIN", "DENTIST"]);
+    if (forbidden) return forbidden;
+    const clinicId = payload.clinicId;
     const notes = await prisma.clinicalNote.findMany({
       where: { clinicId },
       include: {
