@@ -22,15 +22,24 @@ const TREATMENTS = [
   "Extraction", "Crown", "Whitening", "Braces Consultation",
 ];
 
-// Clinic time slots: 09:00 to 20:00 in 30-minute steps (matches clinic hours)
-const TIME_SLOTS: string[] = (() => {
+// Build 30-minute time slots between an opening and closing time ("HH:mm").
+// e.g. buildSlots("09:00", "20:00") -> ["09:00","09:30",...,"20:00"]
+function buildSlots(open: string, close: string): string[] {
+  const [oh, om] = open.split(":").map(Number);
+  const [ch, cm] = close.split(":").map(Number);
+  const start = oh * 60 + (om || 0);
+  const end = ch * 60 + (cm || 0);
   const out: string[] = [];
-  for (let h = 9; h <= 20; h++) {
-    out.push(`${String(h).padStart(2, "0")}:00`);
-    if (h !== 20) out.push(`${String(h).padStart(2, "0")}:30`);
+  for (let mins = start; mins <= end; mins += 30) {
+    const h = Math.floor(mins / 60);
+    const m = mins % 60;
+    out.push(`${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`);
   }
   return out;
-})();
+}
+
+// Fallback if clinic hours haven't loaded yet
+const DEFAULT_SLOTS = buildSlots("09:00", "20:00");
 
 // Format "14:30" -> "2:30 PM" for display
 function formatSlot(t: string): string {
@@ -56,6 +65,7 @@ export default function NewAppointmentPage() {
   const [durationMins, setDurationMins] = useState(30);
   const [treatmentType, setTreatmentType] = useState("Checkup");
   const [notes, setNotes] = useState("");
+  const [slots, setSlots] = useState<string[]>(DEFAULT_SLOTS);
 
   useEffect(() => {
     fetch("/api/patients")
@@ -66,6 +76,14 @@ export default function NewAppointmentPage() {
       .then((r) => r.json())
       .then((d) => setDentists(d.users || []))
       .catch(() => setDentists([]));
+    fetch("/api/clinic")
+      .then((r) => r.json())
+      .then((d) => {
+        const open = d?.data?.openingTime;
+        const close = d?.data?.closingTime;
+        if (open && close) setSlots(buildSlots(open, close));
+      })
+      .catch(() => setSlots(DEFAULT_SLOTS));
   }, []);
 
   async function handleSubmit() {
@@ -194,7 +212,7 @@ export default function NewAppointmentPage() {
               </PopoverTrigger>
               <PopoverContent className="w-auto p-3" align="start">
                 <div className="grid grid-cols-3 gap-2 max-h-64 overflow-y-auto">
-                  {TIME_SLOTS.map((slot) => (
+                  {slots.map((slot) => (
                     <Button
                       key={slot}
                       type="button"
