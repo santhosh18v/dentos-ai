@@ -41,6 +41,18 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // Validate the date: must be a real date, and not in the past.
+  const when = new Date(scheduledAt);
+  if (isNaN(when.getTime())) {
+    return NextResponse.json({ error: "Invalid appointment date/time" }, { status: 400 });
+  }
+  if (when.getTime() < Date.now()) {
+    return NextResponse.json(
+      { error: "Cannot schedule an appointment in the past" },
+      { status: 400 }
+    );
+  }
+
   const appointment = await prisma.appointment.create({
     data: {
       clinicId,

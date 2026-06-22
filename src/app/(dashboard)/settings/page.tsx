@@ -53,6 +53,16 @@ export default function SettingsPage() {
     if (sData.success) setServices(sData.data);
   }
 
+  // Role guard: only CLINIC_ADMIN/RECEPTIONIST may view settings.
+  // Anyone else who types the URL directly is redirected to the dashboard.
+  useEffect(() => {
+    const c = document.cookie.split("; ").find((x) => x.startsWith("user_role="));
+    const role = c ? c.split("=")[1] : "";
+    if (role !== "CLINIC_ADMIN" && role !== "RECEPTIONIST") {
+      window.location.replace("/dashboard");
+    }
+  }, []);
+
   useEffect(() => { loadAll(); }, []);
 
   function setField(field: keyof Clinic, value: string) {

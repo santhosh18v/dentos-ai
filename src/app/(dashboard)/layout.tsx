@@ -31,6 +31,17 @@ export default function DashboardLayout({
   const [confirmLogout, setConfirmLogout] = useState(false);
 
   useEffect(() => {
+    // If the page is restored from bfcache (browser Back after logout),
+    // re-check that the auth cookie still exists; if not, bounce to login.
+    const onPageShow = () => {
+      const hasToken = document.cookie.split("; ").some((x) => x.startsWith("access_token="));
+      if (!hasToken) window.location.replace("/login");
+    };
+    window.addEventListener("pageshow", onPageShow);
+    return () => window.removeEventListener("pageshow", onPageShow);
+  }, []);
+
+  useEffect(() => {
     const c = document.cookie.split("; ").find((x) => x.startsWith("user_role="));
     if (c) setUserRole(c.split("=")[1]);
     const n = document.cookie.split("; ").find((x) => x.startsWith("user_name="));

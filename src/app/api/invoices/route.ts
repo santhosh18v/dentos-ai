@@ -8,7 +8,9 @@ const GST_RATE = 18; // percent
 // GET /api/invoices — list invoices for the page
 export async function GET(request: NextRequest) {
   try {
-    const { clinicId } = getRoleFromRequest(request);
+    const { payload, forbidden } = requireRole(request, ["CLINIC_ADMIN", "RECEPTIONIST"]);
+    if (forbidden) return forbidden;
+    const clinicId = payload.clinicId;
     const invoices = await prisma.invoice.findMany({
       where: { clinicId },
       include: {

@@ -69,6 +69,16 @@ export default function BillingPage() {
     setInvoices(iData.data || []);
   }
 
+  // Role guard: only CLINIC_ADMIN/RECEPTIONIST may view billing.
+  // Anyone else who types the URL directly is redirected to the dashboard.
+  useEffect(() => {
+    const c = document.cookie.split("; ").find((x) => x.startsWith("user_role="));
+    const role = c ? c.split("=")[1] : "";
+    if (role !== "CLINIC_ADMIN" && role !== "RECEPTIONIST") {
+      window.location.replace("/dashboard");
+    }
+  }, []);
+
   useEffect(() => { loadAll(); }, []);
 
   // live preview math (server is authoritative on submit)
