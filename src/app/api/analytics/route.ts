@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getRoleFromRequest } from "@/lib/auth";
 
-const CLINIC_ID = "clinic001";
 
 // Build a list of the last N months as { key: "2026-06", label: "Jun" }
 function lastMonths(n: number) {
@@ -24,8 +24,9 @@ function monthKey(date: Date) {
 }
 
 // GET /api/analytics — all dashboard analytics in one payload
-export async function GET(_request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
+    const { clinicId } = getRoleFromRequest(request);
     const months = lastMonths(6);
     const earliest = new Date(months[0].year, months[0].month, 1);
 
@@ -33,7 +34,7 @@ export async function GET(_request: NextRequest) {
     const payments = await prisma.payment.findMany({
       where: {
         paidAt: { gte: earliest },
-        invoice: { clinicId: CLINIC_ID },
+        invoice: { clinicId },
       },
       select: { amount: true, paidAt: true },
     });
@@ -47,7 +48,7 @@ export async function GET(_request: NextRequest) {
 
     // --- New patients by month ---
     const patients = await prisma.patient.findMany({
-      where: { clinicId: CLINIC_ID, createdAt: { gte: earliest } },
+      where: { clinicId, createdAt: { gte: earliest } },
       select: { createdAt: true },
     });
     const patientsByMonth = months.map((m) => ({ month: m.label, patients: 0 }));
@@ -59,7 +60,7 @@ export async function GET(_request: NextRequest) {
     // --- Appointments by status ---
     const apptGroups = await prisma.appointment.groupBy({
       by: ["status"],
-      where: { clinicId: CLINIC_ID },
+      where: { clinicId },
       _count: { status: true },
     });
     const appointmentsByStatus = apptGroups.map((g) => ({
@@ -75,7 +76,7 @@ export async function GET(_request: NextRequest) {
     // --- Top treatments by count ---
     const treatmentGroups = await prisma.appointment.groupBy({
       by: ["treatmentType"],
-      where: { clinicId: CLINIC_ID },
+      where: { clinicId },
       _count: { treatmentType: true },
       orderBy: { _count: { treatmentType: "desc" } },
       take: 6,
@@ -87,7 +88,7 @@ export async function GET(_request: NextRequest) {
 
     // --- Summary tiles ---
     const invoiceAgg = await prisma.invoice.aggregate({
-      where: { clinicId: CLINIC_ID, status: { not: "CANCELLED" } },
+      where: { clinicId, status: { not: "CANCELLED" } },
       _sum: { total: true, amountPaid: true },
     });
     const totalBilled = Number(invoiceAgg._sum.total || 0);

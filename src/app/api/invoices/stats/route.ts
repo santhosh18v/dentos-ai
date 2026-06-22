@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getRoleFromRequest } from "@/lib/auth";
 
-const CLINIC_ID = "clinic001";
 
 // GET /api/invoices/stats — money figures for the dashboard
-export async function GET(_request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
+    const { clinicId } = getRoleFromRequest(request);
     // First and last moment of the current month
     const now = new Date();
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -15,14 +16,14 @@ export async function GET(_request: NextRequest) {
     const paidThisMonth = await prisma.payment.aggregate({
       where: {
         paidAt: { gte: monthStart, lt: monthEnd },
-        invoice: { clinicId: CLINIC_ID },
+        invoice: { clinicId },
       },
       _sum: { amount: true },
     });
 
     // Outstanding = total billed minus total paid, across all non-cancelled invoices
     const invoiceAgg = await prisma.invoice.aggregate({
-      where: { clinicId: CLINIC_ID, status: { not: "CANCELLED" } },
+      where: { clinicId, status: { not: "CANCELLED" } },
       _sum: { total: true, amountPaid: true },
     });
 

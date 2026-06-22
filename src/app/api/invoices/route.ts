@@ -1,15 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
+import { requireRole, getRoleFromRequest } from "@/lib/auth";
 
-const CLINIC_ID = "clinic001";
 const GST_RATE = 18; // percent
 
 // GET /api/invoices — list invoices for the page
-export async function GET(_request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
+    const { clinicId } = getRoleFromRequest(request);
     const invoices = await prisma.invoice.findMany({
-      where: { clinicId: CLINIC_ID },
+      where: { clinicId },
       include: {
         patient: { select: { name: true, patientCode: true } },
         _count: { select: { lineItems: true, payments: true } },
@@ -32,6 +33,10 @@ type IncomingLine = { description: string; quantity?: number; unitPrice: number 
 // Body: { patientId, appointmentId?, lineItems: [{description, quantity, unitPrice}], notes? }
 export async function POST(request: NextRequest) {
   try {
+    const { payload, forbidden } = requireRole(request, ["CLINIC_ADMIN", "RECEPTIONIST"]);
+    if (forbidden) return forbidden;
+    const clinicId = payload.clinicId;
+
     const { patientId, appointmentId, lineItems, notes } = await request.json();
 
     if (!patientId || !Array.isArray(lineItems) || lineItems.length === 0) {
@@ -61,7 +66,7 @@ export async function POST(request: NextRequest) {
 
     // --- collision-proof invoice number (same pattern as patient codes) ---
     const last = await prisma.invoice.findFirst({
-      where: { clinicId: CLINIC_ID },
+      where: { clinicId },
       orderBy: { invoiceNumber: "desc" },
       select: { invoiceNumber: true },
     });
@@ -75,7 +80,7 @@ export async function POST(request: NextRequest) {
     // --- create invoice + line items atomically (one transaction) ---
     const invoice = await prisma.invoice.create({
       data: {
-        clinicId: CLINIC_ID,
+        clinicId,
         patientId,
         appointmentId: appointmentId || null,
         invoiceNumber,

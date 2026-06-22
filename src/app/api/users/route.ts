@@ -1,15 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getRoleFromRequest } from "@/lib/auth";
 
-const CLINIC_ID = "clinic001";
 
 export async function GET(request: NextRequest) {
+  const { clinicId } = getRoleFromRequest(request);
   const { searchParams } = new URL(request.url);
   const role = searchParams.get("role");
 
   const users = await prisma.user.findMany({
     where: {
-      clinicId: CLINIC_ID,
+      clinicId,
       isActive: true,
       role: role
         ? (role as "DENTIST")

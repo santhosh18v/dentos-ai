@@ -1,15 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireRole } from "@/lib/auth";
+import { requireRole, getRoleFromRequest } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 
-const CLINIC_ID = "clinic001";
 
 // GET /api/clinic/services — list all services
-export async function GET(_request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
+    const { clinicId } = getRoleFromRequest(request);
     const services = await prisma.clinicService.findMany({
-      where: { clinicId: CLINIC_ID },
+      where: { clinicId },
       orderBy: { name: "asc" },
     });
     return NextResponse.json({ success: true, data: services });
@@ -23,8 +23,9 @@ export async function GET(_request: NextRequest) {
 // Body: { name, price, description?, category? }
 export async function POST(request: NextRequest) {
   try {
-    const { payload: _p, forbidden } = requireRole(request, ["CLINIC_ADMIN"]);
+    const { payload, forbidden } = requireRole(request, ["CLINIC_ADMIN"]);
     if (forbidden) return forbidden;
+    const clinicId = payload.clinicId;
 
     const { name, price, description, category } = await request.json();
     if (!name || price == null || Number(price) < 0) {
@@ -32,7 +33,7 @@ export async function POST(request: NextRequest) {
     }
     const service = await prisma.clinicService.create({
       data: {
-        clinicId: CLINIC_ID,
+        clinicId,
         name: String(name),
         price: new Prisma.Decimal(Number(price).toFixed(2)),
         description: description || null,

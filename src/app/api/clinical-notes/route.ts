@@ -1,15 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireRole } from "@/lib/auth";
+import { requireRole, getRoleFromRequest } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { noteStructurer } from "@/lib/clinical";
 
-const CLINIC_ID = "clinic001";
 
 // GET /api/clinical-notes — list notes for the page
-export async function GET(_request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
+    const { clinicId } = getRoleFromRequest(request);
     const notes = await prisma.clinicalNote.findMany({
-      where: { clinicId: CLINIC_ID },
+      where: { clinicId },
       include: {
         patient: { select: { name: true, patientCode: true } },
         appointment: { select: { scheduledAt: true, treatmentType: true } },
@@ -31,8 +31,9 @@ export async function GET(_request: NextRequest) {
 // Body: { appointmentId, rawText }
 export async function POST(request: NextRequest) {
   try {
-    const { payload: _p, forbidden } = requireRole(request, ["CLINIC_ADMIN", "DENTIST"]);
+    const { payload, forbidden } = requireRole(request, ["CLINIC_ADMIN", "DENTIST"]);
     if (forbidden) return forbidden;
+    const clinicId = payload.clinicId;
 
     const { appointmentId, rawText } = await request.json();
 
@@ -45,7 +46,7 @@ export async function POST(request: NextRequest) {
 
     // Confirm the appointment exists and belongs to this clinic
     const appointment = await prisma.appointment.findFirst({
-      where: { id: appointmentId, clinicId: CLINIC_ID },
+      where: { id: appointmentId, clinicId },
       select: { id: true, patientId: true, dentistId: true },
     });
     if (!appointment) {
@@ -61,7 +62,7 @@ export async function POST(request: NextRequest) {
     // Create as a DRAFT — aiGenerated true, isApproved FALSE (the gate)
     const note = await prisma.clinicalNote.create({
       data: {
-        clinicId: CLINIC_ID,
+        clinicId,
         appointmentId: appointment.id,
         patientId: appointment.patientId,
         dentistId: appointment.dentistId,

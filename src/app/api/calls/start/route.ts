@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { telephony } from "@/lib/telephony";
+import { getRoleFromRequest } from "@/lib/auth";
 
-const CLINIC_ID = "clinic001";
 
 // POST /api/calls/start
 // Body (optional): { daysAhead?: number, date?: "YYYY-MM-DD" }
@@ -13,6 +13,7 @@ const CLINIC_ID = "clinic001";
 // Finds SCHEDULED appointments on that day and initiates a reminder call for each.
 export async function POST(request: NextRequest) {
   try {
+    const { clinicId } = getRoleFromRequest(request);
     let daysAhead = 1;
     let explicitDate: string | null = null;
     try {
@@ -49,7 +50,7 @@ export async function POST(request: NextRequest) {
     // Only call appointments that still need confirming
     const appointments = await prisma.appointment.findMany({
       where: {
-        clinicId: CLINIC_ID,
+        clinicId,
         scheduledAt: { gte: start, lt: end },
         status: "SCHEDULED",
       },
@@ -65,7 +66,7 @@ export async function POST(request: NextRequest) {
       // Create the call record first (status INITIATED)
       const callLog = await prisma.callLog.create({
         data: {
-          clinicId: CLINIC_ID,
+          clinicId,
           appointmentId: apt.id,
           patientId: apt.patient.id,
           phoneNumber: apt.patient.phone,

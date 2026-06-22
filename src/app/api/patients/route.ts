@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getRoleFromRequest } from "@/lib/auth";
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const search = searchParams.get("search") || "";
-    const clinicId = "clinic001";
+    const { clinicId } = getRoleFromRequest(request);
 
     const patients = await prisma.patient.findMany({
       where: {
@@ -55,7 +56,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const clinicId = "clinic001";
+    const { clinicId } = getRoleFromRequest(request);
 
     // Find the highest existing patient code, then increment (collision-proof)
     const lastPatient = await prisma.patient.findFirst({

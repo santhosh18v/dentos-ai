@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getRoleFromRequest } from "@/lib/auth";
 
-const CLINIC_ID = "clinic001";
 
 export async function GET(request: NextRequest) {
+  const { clinicId } = getRoleFromRequest(request);
   const { searchParams } = new URL(request.url);
   const date = searchParams.get("date");
 
-  const where: Record<string, unknown> = { clinicId: CLINIC_ID };
+  const where: Record<string, unknown> = { clinicId };
 
   if (date) {
     const start = new Date(date);
@@ -29,6 +30,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const { clinicId } = getRoleFromRequest(request);
   const body = await request.json();
   const { patientId, dentistId, scheduledAt, durationMins, treatmentType, notes } = body;
 
@@ -41,7 +43,7 @@ export async function POST(request: NextRequest) {
 
   const appointment = await prisma.appointment.create({
     data: {
-      clinicId: CLINIC_ID,
+      clinicId,
       patientId,
       dentistId,
       scheduledAt: new Date(scheduledAt),

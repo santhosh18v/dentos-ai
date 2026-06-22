@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireRole } from "@/lib/auth";
+import { requireRole, getRoleFromRequest } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
-const CLINIC_ID = "clinic001";
 
 // GET /api/clinic — clinic profile, hours, about
-export async function GET(_request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
-    const clinic = await prisma.clinic.findUnique({ where: { id: CLINIC_ID } });
+    const { clinicId } = getRoleFromRequest(request);
+    const clinic = await prisma.clinic.findUnique({ where: { id: clinicId } });
     if (!clinic) {
       return NextResponse.json({ success: false, error: "Clinic not found" }, { status: 404 });
     }
@@ -22,8 +22,9 @@ export async function GET(_request: NextRequest) {
 // Body: any of { name, address, phone, email, gstNumber, workingDays, openingTime, closingTime, aboutInfo }
 export async function PUT(request: NextRequest) {
   try {
-    const { payload: _p, forbidden } = requireRole(request, ["CLINIC_ADMIN"]);
+    const { payload, forbidden } = requireRole(request, ["CLINIC_ADMIN"]);
     if (forbidden) return forbidden;
+    const clinicId = payload.clinicId;
 
     const body = await request.json();
     // Whitelist editable fields (never trust arbitrary keys from the client)
@@ -39,7 +40,7 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ success: false, error: "No valid fields to update" }, { status: 400 });
     }
 
-    const updated = await prisma.clinic.update({ where: { id: CLINIC_ID }, data });
+    const updated = await prisma.clinic.update({ where: { id: clinicId }, data });
     return NextResponse.json({ success: true, data: updated });
   } catch (error) {
     console.error("[PUT /api/clinic]", error);
