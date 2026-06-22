@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireRole } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 const CLINIC_ID = "clinic001";
@@ -21,6 +22,9 @@ export async function GET(_request: NextRequest) {
 // Body: any of { name, address, phone, email, gstNumber, workingDays, openingTime, closingTime, aboutInfo }
 export async function PUT(request: NextRequest) {
   try {
+    const { payload: _p, forbidden } = requireRole(request, ["CLINIC_ADMIN"]);
+    if (forbidden) return forbidden;
+
     const body = await request.json();
     // Whitelist editable fields (never trust arbitrary keys from the client)
     const allowed = [

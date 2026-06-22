@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireRole } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 // PUT /api/clinical-notes/[id]/approve
@@ -9,6 +10,9 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { payload: _p, forbidden } = requireRole(request, ["CLINIC_ADMIN", "DENTIST"]);
+    if (forbidden) return forbidden;
+
     const { id } = await params;
 
     const note = await prisma.clinicalNote.update({

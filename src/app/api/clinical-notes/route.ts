@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireRole } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { noteStructurer } from "@/lib/clinical";
 
@@ -30,6 +31,9 @@ export async function GET(_request: NextRequest) {
 // Body: { appointmentId, rawText }
 export async function POST(request: NextRequest) {
   try {
+    const { payload: _p, forbidden } = requireRole(request, ["CLINIC_ADMIN", "DENTIST"]);
+    if (forbidden) return forbidden;
+
     const { appointmentId, rawText } = await request.json();
 
     if (!appointmentId || !rawText) {

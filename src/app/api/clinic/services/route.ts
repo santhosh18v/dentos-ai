@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireRole } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 
@@ -22,6 +23,9 @@ export async function GET(_request: NextRequest) {
 // Body: { name, price, description?, category? }
 export async function POST(request: NextRequest) {
   try {
+    const { payload: _p, forbidden } = requireRole(request, ["CLINIC_ADMIN"]);
+    if (forbidden) return forbidden;
+
     const { name, price, description, category } = await request.json();
     if (!name || price == null || Number(price) < 0) {
       return NextResponse.json({ success: false, error: "Name and a valid price are required" }, { status: 400 });
