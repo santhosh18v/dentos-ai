@@ -49,9 +49,19 @@ export async function POST(request: NextRequest) {
       preferredLanguage,
     } = body;
 
-    if (!name || !phone) {
+    // --- Validation (server is the gatekeeper; the form can be bypassed) ---
+    const cleanName = typeof name === "string" ? name.trim() : "";
+    if (cleanName.length < 2 || cleanName.length > 100) {
       return NextResponse.json(
-        { success: false, error: "Name and phone are required" },
+        { success: false, error: "Name must be between 2 and 100 characters" },
+        { status: 400 }
+      );
+    }
+    // Strip spaces/dashes/parens, then require exactly 10 digits (Indian mobile)
+    const cleanPhone = typeof phone === "string" ? phone.replace(/[\s\-()]/g, "") : "";
+    if (!/^\d{10}$/.test(cleanPhone)) {
+      return NextResponse.json(
+        { success: false, error: "Phone must be exactly 10 digits" },
         { status: 400 }
       );
     }
@@ -76,8 +86,8 @@ export async function POST(request: NextRequest) {
       data: {
         clinicId,
         patientCode,
-        name,
-        phone,
+        name: cleanName,
+        phone: cleanPhone,
         email,
         gender,
         dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : null,
