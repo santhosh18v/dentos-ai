@@ -63,7 +63,7 @@ export function ChatWidget({ patientId }: { patientId?: string }) {
 
       {/* Chat panel */}
       {open && (
-        <div className="fixed bottom-24 right-6 z-50 w-[360px] max-w-[calc(100vw-3rem)] h-[520px] bg-white rounded-2xl shadow-2xl border flex flex-col overflow-hidden">
+        <div className="fixed bottom-24 right-6 z-50 w-[360px] max-w-[calc(100vw-3rem)] h-[520px] bg-card rounded-2xl shadow-2xl border border-border flex flex-col overflow-hidden">
           {/* Header */}
           <div className="bg-emerald-600 text-white px-4 py-3">
             <div className="font-semibold">SmileCare Assistant</div>
@@ -71,14 +71,14 @@ export function ChatWidget({ patientId }: { patientId?: string }) {
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-3 space-y-3 bg-gray-50">
+          <div className="flex-1 overflow-y-auto p-3 space-y-3 bg-background">
             {messages.map((m, i) => (
               <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
                 <div
                   className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm ${
                     m.role === "user"
                       ? "bg-emerald-600 text-white rounded-br-sm"
-                      : "bg-white border text-gray-800 rounded-bl-sm"
+                      : "bg-muted border border-border text-foreground rounded-bl-sm"
                   }`}
                 >
                   {m.text}
@@ -102,7 +102,7 @@ export function ChatWidget({ patientId }: { patientId?: string }) {
 
           {/* Suggestions (only before first user message) */}
           {messages.filter((m) => m.role === "user").length === 0 && (
-            <div className="px-3 pb-2 flex flex-wrap gap-2 bg-gray-50">
+            <div className="px-3 pb-2 flex flex-wrap gap-2 bg-background">
               {SUGGESTIONS.map((s) => (
                 <button
                   key={s}
@@ -116,13 +116,13 @@ export function ChatWidget({ patientId }: { patientId?: string }) {
           )}
 
           {/* Input */}
-          <div className="border-t p-2 flex gap-2 bg-white">
+          <div className="border-t border-border p-2 flex gap-2 bg-card">
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter") send(input); }}
               placeholder="Type your question..."
-              className="flex-1 rounded-full border px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              className="flex-1 rounded-full border border-border bg-background text-foreground px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500"
             />
             <button
               onClick={() => send(input)}

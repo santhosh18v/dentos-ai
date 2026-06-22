@@ -91,8 +91,8 @@ export default function VoiceAssistantPage() {
       const windowLabel = WINDOW_LABEL[daysAhead] || `${daysAhead} days ahead`;
       setMessage(
         data.count > 0
-          ? `Started ${data.count} reminder call(s) for patients ${windowLabel}.`
-          : `No appointments to call ${windowLabel}.`
+          ? `Started ${data.count} reminder call(s) for upcoming appointments (${windowLabel}).`
+          : `No SCHEDULED appointments found in the next ${daysAhead} day(s).`
       );
       await loadCalls();
     } catch {

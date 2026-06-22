@@ -94,15 +94,15 @@ export default function DashboardPage() {
   ];
 
   return (
-    <div className="min-h-full bg-gray-950">
+    <div className="min-h-full">
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-white">Good morning, Dr. Sharma</h1>
-        <p className="text-gray-400 text-sm mt-1">SmileCare Dental Clinic · {dateLabel}</p>
+        <p className="text-muted-foreground text-sm mt-1">SmileCare Dental Clinic · {dateLabel}</p>
       </div>
 
       <div className="grid grid-cols-4 gap-4 mb-8">
         {cards.map((card) => (
-          <div key={card.label} className="bg-gray-900 border border-gray-800 rounded-xl p-4">
+          <div key={card.label} className="bg-card border border-border rounded-xl p-4">
             <div className="text-gray-400 text-xs mb-2">{card.label}</div>
             <div className={`text-2xl font-bold ${card.color}`}>{card.value}</div>
             {card.hint && <div className="text-gray-600 text-[10px] mt-1">{card.hint}</div>}
@@ -110,31 +110,31 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      <div className="bg-gray-900 border border-gray-800 rounded-xl p-5">
+      <div className="bg-card border border-border rounded-xl p-5">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-white font-semibold">Today's Appointments</h2>
+          <h2 className="font-semibold">Today's Appointments</h2>
           <Link href="/appointments" className="text-emerald-400 text-xs hover:underline">
             View all →
           </Link>
         </div>
 
         {loading ? (
-          <div className="text-gray-500 text-sm py-6 text-center">Loading...</div>
+          <div className="text-muted-foreground text-sm py-6 text-center">Loading...</div>
         ) : todays.length === 0 ? (
-          <div className="text-gray-500 text-sm py-6 text-center">
+          <div className="text-muted-foreground text-sm py-6 text-center">
             No appointments scheduled for today.
           </div>
         ) : (
           todays.map((apt) => (
-            <div key={apt.id} className="flex items-center gap-3 py-3 border-b border-gray-800 last:border-0">
+            <div key={apt.id} className="flex items-center gap-3 py-3 border-b border-border last:border-0">
               <div className="w-8 h-8 bg-emerald-600/20 rounded-full flex items-center justify-center text-emerald-400 text-xs font-bold">
                 {apt.patient.name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase()}
               </div>
               <div className="flex-1">
-                <div className="text-white text-sm">{apt.patient.name}</div>
-                <div className="text-gray-400 text-xs">{apt.treatmentType}</div>
+                <div className="text-sm">{apt.patient.name}</div>
+                <div className="text-muted-foreground text-xs">{apt.treatmentType}</div>
               </div>
-              <div className="text-gray-400 text-xs">{formatTime(apt.scheduledAt)}</div>
+              <div className="text-muted-foreground text-xs">{formatTime(apt.scheduledAt)}</div>
               <span className={`text-xs px-2 py-0.5 rounded-full ${STATUS_STYLE[apt.status] || "text-gray-400 bg-gray-400/10"}`}>
                 {apt.status}
               </span>

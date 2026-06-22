@@ -23,19 +23,28 @@ export async function POST(request: NextRequest) {
       // no body — keep defaults
     }
 
-    // Determine the target day: explicit date wins, else today + daysAhead
-    let targetDate: Date;
+    // For manual triggering: find all SCHEDULED appointments in the next
+    // 1..daysAhead days (range, not exact day). This way "1 week before"
+    // catches everyone with an upcoming appointment this week.
+    // In production (cron), the exact-day logic runs automatically each morning.
+    let start: Date;
+    let end: Date;
     if (explicitDate) {
-      targetDate = new Date(explicitDate);
+      // Explicit date override: exact day only
+      const targetDate = new Date(explicitDate);
+      start = new Date(targetDate);
+      start.setHours(0, 0, 0, 0);
+      end = new Date(start);
+      end.setDate(end.getDate() + 1);
     } else {
-      targetDate = new Date();
-      targetDate.setDate(targetDate.getDate() + daysAhead);
+      // Range: tomorrow through today + daysAhead
+      start = new Date();
+      start.setDate(start.getDate() + 1);
+      start.setHours(0, 0, 0, 0);
+      end = new Date();
+      end.setDate(end.getDate() + daysAhead);
+      end.setHours(23, 59, 59, 999);
     }
-
-    const start = new Date(targetDate);
-    start.setHours(0, 0, 0, 0);
-    const end = new Date(start);
-    end.setDate(end.getDate() + 1);
 
     // Only call appointments that still need confirming
     const appointments = await prisma.appointment.findMany({
@@ -91,6 +100,7 @@ export async function POST(request: NextRequest) {
       success: true,
       count: results.length,
       daysAhead: explicitDate ? null : daysAhead,
+      rangeDescription: explicitDate ? "exact date" : `next ${daysAhead} day(s)`,
       calls: results,
     });
   } catch (error) {

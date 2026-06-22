@@ -97,10 +97,10 @@ export default function AnalyticsPage() {
                 <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
+            <CartesianGrid strokeDasharray="3 3" stroke="oklch(1 0 0 / 12%)" vertical={false} />
             <XAxis dataKey="month" tick={{ fontSize: 12 }} />
             <YAxis tick={{ fontSize: 12 }} tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`} />
-            <Tooltip formatter={(v: number) => inr(v)} />
+            <Tooltip formatter={(v: number) => inr(v)} contentStyle={{ backgroundColor: "oklch(0.22 0.02 240)", border: "1px solid oklch(1 0 0 / 10%)", borderRadius: "8px", color: "oklch(0.97 0.005 240)" }} />
             <Area type="monotone" dataKey="revenue" stroke="#10b981" strokeWidth={2} fill="url(#rev)" />
           </AreaChart>
         </ResponsiveContainer>
@@ -126,7 +126,7 @@ export default function AnalyticsPage() {
                   <Cell key={entry.status} fill={STATUS_COLORS[entry.status] || "#94a3b8"} />
                 ))}
               </Pie>
-              <Tooltip />
+              <Tooltip contentStyle={{ backgroundColor: "oklch(0.22 0.02 240)", border: "1px solid oklch(1 0 0 / 10%)", borderRadius: "8px", color: "oklch(0.97 0.005 240)" }} />
               <Legend wrapperStyle={{ fontSize: 12 }} />
             </PieChart>
           </ResponsiveContainer>
@@ -137,10 +137,10 @@ export default function AnalyticsPage() {
           <h2 className="font-semibold mb-4">New Patients by Month</h2>
           <ResponsiveContainer width="100%" height={260}>
             <LineChart data={data.patientsByMonth} margin={{ top: 5, right: 10, left: 10, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="oklch(1 0 0 / 12%)" vertical={false} />
               <XAxis dataKey="month" tick={{ fontSize: 12 }} />
               <YAxis tick={{ fontSize: 12 }} allowDecimals={false} />
-              <Tooltip />
+              <Tooltip contentStyle={{ backgroundColor: "oklch(0.22 0.02 240)", border: "1px solid oklch(1 0 0 / 10%)", borderRadius: "8px", color: "oklch(0.97 0.005 240)" }} />
               <Line type="monotone" dataKey="patients" stroke="#3b82f6" strokeWidth={2} dot={{ r: 4 }} />
             </LineChart>
           </ResponsiveContainer>
@@ -156,10 +156,10 @@ export default function AnalyticsPage() {
             layout="vertical"
             margin={{ top: 5, right: 20, left: 40, bottom: 0 }}
           >
-            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" horizontal={false} />
+            <CartesianGrid strokeDasharray="3 3" stroke="oklch(1 0 0 / 12%)" horizontal={false} />
             <XAxis type="number" tick={{ fontSize: 12 }} allowDecimals={false} />
             <YAxis type="category" dataKey="treatment" tick={{ fontSize: 12 }} width={120} />
-            <Tooltip />
+            <Tooltip contentStyle={{ backgroundColor: "oklch(0.22 0.02 240)", border: "1px solid oklch(1 0 0 / 10%)", borderRadius: "8px", color: "oklch(0.97 0.005 240)" }} />
             <Bar dataKey="count" fill="#6366f1" radius={[0, 4, 4, 0]} />
           </BarChart>
         </ResponsiveContainer>
