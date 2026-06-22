@@ -11,7 +11,7 @@ import { Calendar } from "@/components/ui/calendar";
 import {
   Popover, PopoverContent, PopoverTrigger,
 } from "@/components/ui/popover";
-import { ArrowLeft, CalendarIcon } from "lucide-react";
+import { ArrowLeft, CalendarIcon, Clock } from "lucide-react";
 import Link from "next/link";
 
 type Patient = { id: string; name: string; patientCode: string; phone: string };
@@ -21,6 +21,24 @@ const TREATMENTS = [
   "Checkup", "Cleaning", "Filling", "Root Canal",
   "Extraction", "Crown", "Whitening", "Braces Consultation",
 ];
+
+// Clinic time slots: 09:00 to 20:00 in 30-minute steps (matches clinic hours)
+const TIME_SLOTS: string[] = (() => {
+  const out: string[] = [];
+  for (let h = 9; h <= 20; h++) {
+    out.push(`${String(h).padStart(2, "0")}:00`);
+    if (h !== 20) out.push(`${String(h).padStart(2, "0")}:30`);
+  }
+  return out;
+})();
+
+// Format "14:30" -> "2:30 PM" for display
+function formatSlot(t: string): string {
+  const [h, m] = t.split(":").map(Number);
+  const ampm = h >= 12 ? "PM" : "AM";
+  const hour12 = h % 12 === 0 ? 12 : h % 12;
+  return `${hour12}:${String(m).padStart(2, "0")} ${ampm}`;
+}
 
 export default function NewAppointmentPage() {
   const router = useRouter();
@@ -33,6 +51,7 @@ export default function NewAppointmentPage() {
   const [dentistId, setDentistId] = useState("");
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [calendarOpen, setCalendarOpen] = useState(false);
+  const [timeOpen, setTimeOpen] = useState(false);
   const [time, setTime] = useState("");
   const [durationMins, setDurationMins] = useState(30);
   const [treatmentType, setTreatmentType] = useState("Checkup");
@@ -150,6 +169,7 @@ export default function NewAppointmentPage() {
               <PopoverContent className="w-auto p-0" align="start">
                 <Calendar
                   mode="single"
+                  disabled={{ before: new Date(new Date().setHours(0, 0, 0, 0)) }}
                   selected={date}
                   onSelect={(d) => {
                     setDate(d);
@@ -162,7 +182,35 @@ export default function NewAppointmentPage() {
           </div>
           <div className="space-y-2">
             <Label>Time</Label>
-            <Input type="time" value={time} onChange={(e) => setTime(e.target.value)} />
+            <Popover open={timeOpen} onOpenChange={setTimeOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-full justify-start text-left font-normal"
+                >
+                  <Clock className="mr-2 h-4 w-4" />
+                  {time ? formatSlot(time) : <span className="text-muted-foreground">Select a time</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-3" align="start">
+                <div className="grid grid-cols-3 gap-2 max-h-64 overflow-y-auto">
+                  {TIME_SLOTS.map((slot) => (
+                    <Button
+                      key={slot}
+                      type="button"
+                      variant={time === slot ? "default" : "outline"}
+                      className="text-xs"
+                      onClick={() => {
+                        setTime(slot);
+                        setTimeOpen(false);
+                      }}
+                    >
+                      {formatSlot(slot)}
+                    </Button>
+                  ))}
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
         </div>
 
