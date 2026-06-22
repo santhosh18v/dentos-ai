@@ -57,17 +57,24 @@ export default function DashboardLayout({
       {/* Sidebar */}
       <aside className="w-56 bg-gray-900 border-r border-gray-800 flex flex-col fixed h-full">
         {/* Logo */}
-        <div className="px-4 py-5 border-b border-gray-800">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center text-white text-sm">
-              🦷
+        <Link href="/dashboard" className="block px-4 py-5 border-b border-gray-800 hover:bg-gray-800/50 transition-colors">
+          <div className="flex items-center gap-3">
+            <div className="relative w-9 h-9 flex-shrink-0">
+              <div className="absolute inset-0 bg-emerald-500/20 rounded-xl blur-sm" />
+              <div className="relative w-9 h-9 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center text-base shadow-lg">
+                🦷
+              </div>
             </div>
             <div>
-              <div className="text-white font-semibold text-sm">DentOS AI</div>
-              <div className="text-gray-500 text-xs">SmileCare Clinic</div>
+              <div className="text-sm font-bold bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent tracking-tight">
+                DentOS AI
+              </div>
+              <div className="text-gray-500 text-[10px] tracking-wide uppercase">
+                SmileCare Clinic
+              </div>
             </div>
           </div>
-        </div>
+        </Link>
 
         {/* Nav Items */}
         <nav className="flex-1 px-2 py-4 space-y-0.5">
