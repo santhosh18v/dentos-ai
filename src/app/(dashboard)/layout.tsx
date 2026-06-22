@@ -38,6 +38,15 @@ export default function DashboardLayout({
   }, []);
 
   const visibleNav = navItems.filter((item) => item.roles.includes(userRole));
+
+  // Derive avatar initials from the name: "Dr. Anjali Rao" -> "AR", "Priya Reception" -> "PR"
+  const initials = (() => {
+    const stripped = userName.replace(/^Dr\.?\s+/i, "").split(/\s+/).filter(Boolean);
+    // If stripping "Dr." leaves 2+ words (e.g. "Dr. Anjali Rao" -> Anjali, Rao), use those.
+    // If it leaves only one (e.g. "Dr. Sharma" -> Sharma), keep the title so we get "DS".
+    const words = stripped.length >= 2 ? stripped : userName.split(/\s+/).filter(Boolean);
+    return words.slice(0, 2).map((w) => w[0]?.toUpperCase() || "").join("");
+  })();
   const ROLE_LABEL: Record<string, string> = {
     CLINIC_ADMIN: "Clinic Admin",
     DENTIST: "Doctor",
@@ -98,7 +107,7 @@ export default function DashboardLayout({
         <div className="px-4 py-4 border-t border-gray-800">
           <div className="flex items-center gap-2">
             <div className="w-7 h-7 bg-emerald-600/20 rounded-full flex items-center justify-center text-emerald-400 text-xs font-medium">
-              DS
+              {initials || "?"}
             </div>
             <div>
               <div className="text-white text-xs font-medium">{userName}</div>

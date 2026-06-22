@@ -52,9 +52,25 @@ export default function LoginPage() {
         setLoading(false);
         return;
       }
+
+      // Enforce the selected role card against the actual database role.
+      // Password is already verified above; this only checks the role matches
+      // the card the user picked. Neutral message — does not reveal account roles.
+      const expectedRole: Record<Role, string> = {
+        DOCTOR: "DENTIST",
+        RECEPTIONIST: "RECEPTIONIST",
+        ADMIN: "CLINIC_ADMIN",
+      };
+      if (data.data.user.role !== expectedRole[role]) {
+        setError("These credentials don't match the selected role. Please check your role selection.");
+        setLoading(false);
+        return;
+      }
+
       document.cookie = `access_token=${data.data.accessToken}; path=/; max-age=900`;
-      const roleMap: Record<string, string> = { DOCTOR: "DENTIST", RECEPTIONIST: "RECEPTIONIST", ADMIN: "CLINIC_ADMIN" };
-      document.cookie = `user_role=${roleMap[role] || "CLINIC_ADMIN"}; path=/; max-age=900`;
+      // Use the REAL role from the database (login response), NOT the selected card.
+      // The card is decorative; security and UI must reflect the actual user.
+      document.cookie = `user_role=${data.data.user.role}; path=/; max-age=900`;
       document.cookie = `user_name=${encodeURIComponent(data.data.user.name)}; path=/; max-age=900`;
       // Hard navigation so proxy sees the cookie immediately (no flash)
       window.location.href = "/";

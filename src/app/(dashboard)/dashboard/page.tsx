@@ -32,6 +32,12 @@ export default function DashboardPage() {
   const [todays, setTodays] = useState<Appointment[]>([]);
   const [monthlyRevenue, setMonthlyRevenue] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
+  const [userName, setUserName] = useState("there");
+
+  useEffect(() => {
+    const n = document.cookie.split("; ").find((x) => x.startsWith("user_name="));
+    if (n) setUserName(decodeURIComponent(n.split("=")[1]));
+  }, []);
 
   useEffect(() => {
     async function load() {
@@ -96,7 +102,7 @@ export default function DashboardPage() {
   return (
     <div className="min-h-full">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-white">Good morning, Dr. Sharma</h1>
+        <h1 className="text-2xl font-bold text-white">Good morning, {userName}</h1>
         <p className="text-muted-foreground text-sm mt-1">SmileCare Dental Clinic · {dateLabel}</p>
       </div>
 
