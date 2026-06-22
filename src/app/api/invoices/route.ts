@@ -48,6 +48,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate prices: must be numeric and not negative (₹0 is allowed for free/complimentary).
+    for (const li of lineItems as IncomingLine[]) {
+      const price = Number(li.unitPrice);
+      if (isNaN(price) || price < 0) {
+        return NextResponse.json(
+          { success: false, error: "Line item prices must be a number and cannot be negative" },
+          { status: 400 }
+        );
+      }
+    }
+
     // --- SERVER-SIDE money math (never trust the browser) ---
     let subtotal = 0;
     const preparedLines = (lineItems as IncomingLine[]).map((li) => {
