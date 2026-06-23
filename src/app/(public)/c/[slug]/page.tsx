@@ -42,9 +42,6 @@ export default async function PublicClinicPage({
       {/* Header */}
       <header className="bg-gradient-to-br from-emerald-600 to-teal-700 text-white">
         <div className="max-w-2xl mx-auto px-5 py-10">
-          <div className="flex items-center gap-2 text-emerald-100 text-sm mb-2">
-            <span className="text-lg">🦷</span> DentOS AI
-          </div>
           <h1 className="text-3xl font-bold tracking-tight">{clinic.name}</h1>
           {clinic.aboutInfo && (
             <p className="mt-2 text-emerald-50/90">{clinic.aboutInfo}</p>
@@ -110,6 +107,9 @@ export default async function PublicClinicPage({
 
         <p className="text-center text-xs text-slate-400 pt-4">
           Have a question? Tap the chat button to ask our assistant.
+        </p>
+        <p className="text-center text-xs text-slate-300 pt-2 pb-6">
+          Powered by <span className="font-medium text-slate-400">DentOS AI</span>
         </p>
       </main>
 
