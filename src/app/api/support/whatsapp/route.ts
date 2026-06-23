@@ -66,6 +66,7 @@ export async function POST(request: NextRequest) {
       question: text,
       clinicId: CLINIC_ID,
       patientId: matched?.id || null,
+      channel: "whatsapp",
     });
 
     // In production: POST reply.answer back via the WhatsApp Cloud API here.

@@ -56,9 +56,11 @@ enum PaymentMethod {
 
 model Clinic {
   id            String         @id @default(cuid())
+  slug          String?        @unique
   name          String
   address       String?
   phone         String?
+  whatsappNumber String?
   email         String?
   gstNumber     String?
   logoUrl       String?

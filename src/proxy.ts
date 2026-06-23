@@ -3,7 +3,7 @@ import { jwtVerify } from "jose";
 
 const JWT_SECRET = process.env.JWT_SECRET || "dentos-dev-secret-32-chars-minimum";
 
-const publicRoutes = ["/login", "/api/auth/login", "/api/support/whatsapp"];
+const publicRoutes = ["/login", "/api/auth/login", "/api/support/whatsapp", "/api/support/chat", "/api/public/", "/c/"];
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;

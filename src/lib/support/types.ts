@@ -16,6 +16,7 @@ export type SupportInput = {
   question: string;
   clinicId: string;
   patientId?: string | null; // known on website (logged in) or matched by phone on WhatsApp
+  channel?: "web" | "whatsapp"; // where the question came from (defaults to web)
 };
 
 export type SupportReply = {

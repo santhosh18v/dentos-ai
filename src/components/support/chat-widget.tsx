@@ -12,7 +12,7 @@ const SUGGESTIONS = [
   "Where are you located?",
 ];
 
-export function ChatWidget({ patientId }: { patientId?: string }) {
+export function ChatWidget({ patientId, clinicId, channel = "web" }: { patientId?: string; clinicId?: string; channel?: "web" | "whatsapp" }) {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([
     { role: "agent", text: "Hi! I'm the SmileCare assistant. Ask me about timings, services, prices, your appointments, or bills." },
@@ -35,7 +35,7 @@ export function ChatWidget({ patientId }: { patientId?: string }) {
       const res = await fetch("/api/support/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question: q, patientId }),
+        body: JSON.stringify({ question: q, patientId, clinicId, channel }),
       });
       const data = await res.json();
       if (data.success) {

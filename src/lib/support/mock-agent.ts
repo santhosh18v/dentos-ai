@@ -96,7 +96,11 @@ export class MockSupportAgent implements SupportAgent {
 
       case "MY_APPOINTMENT": {
         if (!input.patientId) {
-          return { intent, handoff: false, answer: "Please log in (or message us from your registered number) so I can look up your appointments." };
+          const wa = clinic?.whatsappNumber;
+          const msg = wa
+            ? `For your personal appointment details, please message us on WhatsApp at ${wa} — we'll verify your number and help you there.`
+            : "For your personal appointment details, please contact the clinic directly.";
+          return { intent, handoff: false, answer: msg };
         }
         const next = await prisma.appointment.findFirst({
           where: {
@@ -121,7 +125,11 @@ export class MockSupportAgent implements SupportAgent {
 
       case "MY_BILLS": {
         if (!input.patientId) {
-          return { intent, handoff: false, answer: "Please log in (or message us from your registered number) so I can check your bills." };
+          const wa = clinic?.whatsappNumber;
+          const msg = wa
+            ? `For your bill details, please message us on WhatsApp at ${wa} — we'll verify your number and share them securely.`
+            : "For your bill details, please contact the clinic directly.";
+          return { intent, handoff: false, answer: msg };
         }
         const unpaid = await prisma.invoice.findMany({
           where: {

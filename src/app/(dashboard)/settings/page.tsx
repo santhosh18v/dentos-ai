@@ -11,6 +11,7 @@ type Clinic = {
   name: string;
   address: string | null;
   phone: string | null;
+  whatsappNumber: string | null;
   email: string | null;
   gstNumber: string | null;
   workingDays: string | null;
@@ -170,6 +171,15 @@ export default function SettingsPage() {
               <Label>Email</Label>
               <Input value={clinic.email || ""} onChange={(e) => setField("email", e.target.value)} />
             </div>
+          </div>
+          <div className="space-y-2">
+            <Label>WhatsApp Number</Label>
+            <Input
+              value={clinic.whatsappNumber || ""}
+              onChange={(e) => setField("whatsappNumber", e.target.value)}
+              placeholder="+91 90000 00000"
+            />
+            <p className="text-xs text-muted-foreground">Shown to patients on the public page for personal queries.</p>
           </div>
           <div className="space-y-2">
             <Label>GST Number</Label>
