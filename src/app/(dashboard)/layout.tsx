@@ -3,10 +3,8 @@
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { ChatWidget } from "@/components/support/chat-widget";
 import { LogOut } from "lucide-react";
 
-const DEMO_PATIENT_ID = "cmqkewjsj00004z11dtco7xw6";
 
 const ALL = ["CLINIC_ADMIN", "DENTIST", "RECEPTIONIST"];
 const navItems = [
@@ -141,7 +139,6 @@ export default function DashboardLayout({
       <main className="ml-56 flex-1 p-6 bg-gray-950">
         {children}
       </main>
-      <ChatWidget patientId={DEMO_PATIENT_ID} />
       {/* Sign out confirmation modal */}
       {confirmLogout && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
