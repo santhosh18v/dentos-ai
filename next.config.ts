@@ -2,9 +2,7 @@ import type { NextConfig } from "next";
 
 
 const nextConfig: NextConfig = {
-  turbopack: {
-    root: process.cwd(),
-  },
+  outputFileTracingRoot: process.cwd(),
   typescript: {
     // Type errors are fixed post-deploy; build must succeed first
     ignoreBuildErrors: true,
