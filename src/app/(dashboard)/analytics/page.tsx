@@ -100,7 +100,7 @@ export default function AnalyticsPage() {
             <CartesianGrid strokeDasharray="3 3" stroke="oklch(1 0 0 / 12%)" vertical={false} />
             <XAxis dataKey="month" tick={{ fontSize: 12 }} />
             <YAxis tick={{ fontSize: 12 }} tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`} />
-            <Tooltip formatter={(v: number) => inr(v)} contentStyle={{ backgroundColor: "oklch(0.22 0.02 240)", border: "1px solid oklch(1 0 0 / 10%)", borderRadius: "8px", color: "oklch(0.97 0.005 240)" }} />
+            <Tooltip formatter={(v) => inr(v as number)} contentStyle={{ backgroundColor: "oklch(0.22 0.02 240)", border: "1px solid oklch(1 0 0 / 10%)", borderRadius: "8px", color: "oklch(0.97 0.005 240)" }} />
             <Area type="monotone" dataKey="revenue" stroke="#10b981" strokeWidth={2} fill="url(#rev)" />
           </AreaChart>
         </ResponsiveContainer>

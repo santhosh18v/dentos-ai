@@ -193,7 +193,6 @@ export default function NewAppointmentPage() {
                     setDate(d);
                     setCalendarOpen(false);
                   }}
-                  initialFocus
                 />
               </PopoverContent>
             </Popover>

@@ -76,7 +76,7 @@ export default function DashboardPage() {
     });
   }
 
-  const cards = [
+  const cards: { label: string; value: string; color: string; hint?: string }[] = [
     {
       label: "Total Patients",
       value: patientCount === null ? "…" : patientCount.toLocaleString("en-IN"),

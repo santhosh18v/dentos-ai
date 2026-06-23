@@ -61,7 +61,7 @@ export function generateInvoicePdf(inv: InvoicePdfData) {
   y += 56;
 
   // --- Line items table header ---
-  doc.setFillColor(245);
+  doc.setFillColor(245, 245, 245);
   doc.rect(left, y, right - left, 22, "F");
   doc.setFontSize(9);
   doc.setFont("helvetica", "bold");
