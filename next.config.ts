@@ -1,10 +1,15 @@
 import type { NextConfig } from "next";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
 
+const projectRoot = dirname(fileURLToPath(import.meta.url));
 
 const nextConfig: NextConfig = {
-  outputFileTracingRoot: process.cwd(),
+  turbopack: {
+    root: projectRoot,
+  },
+  outputFileTracingRoot: projectRoot,
   typescript: {
-    // Type errors are fixed post-deploy; build must succeed first
     ignoreBuildErrors: true,
   },
   eslint: {
