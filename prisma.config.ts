@@ -1,4 +1,5 @@
-import "dotenv/config";
+// Only load dotenv in local dev — on Render, env vars are injected directly
+if (process.env.NODE_ENV !== "production") { require("dotenv/config"); }
 import { defineConfig } from "prisma/config";
 
 export default defineConfig({
