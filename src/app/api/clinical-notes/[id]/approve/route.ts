@@ -10,7 +10,7 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { payload: _p, forbidden } = requireRole(request, ["CLINIC_ADMIN", "DENTIST"]);
+    const { payload: _p, forbidden } = requireRole(_request, ["CLINIC_ADMIN", "DENTIST"]);
     if (forbidden) return forbidden;
 
     const { id } = await params;
