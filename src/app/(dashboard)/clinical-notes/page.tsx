@@ -55,7 +55,12 @@ export default function ClinicalNotesPage() {
 
   const [recording, setRecording] = useState(false);
   const [transcribing, setTranscribing] = useState(false);
-  const [dictationUrl, setDictationUrl] = useState(DEFAULT_DICTATION_URL);
+  const [dictationUrl, setDictationUrl] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("dictationUrl") || DEFAULT_DICTATION_URL;
+    }
+    return DEFAULT_DICTATION_URL;
+  });
   const [showUrlInput, setShowUrlInput] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
@@ -271,7 +276,7 @@ export default function ClinicalNotesPage() {
                 <input
                   className="w-full rounded-md border bg-background px-3 py-1.5 text-xs font-mono"
                   value={dictationUrl}
-                  onChange={(e) => setDictationUrl(e.target.value)}
+                  onChange={(e) => { setDictationUrl(e.target.value); localStorage.setItem("dictationUrl", e.target.value); }}
                   placeholder="https://your-tunnel.trycloudflare.com"
                 />
                 <p className="text-[10px] text-muted-foreground">
