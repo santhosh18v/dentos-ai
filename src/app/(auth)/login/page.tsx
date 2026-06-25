@@ -67,11 +67,11 @@ export default function LoginPage() {
         return;
       }
 
-      document.cookie = `access_token=${data.data.accessToken}; path=/; max-age=900`;
+      document.cookie = `access_token=${data.data.accessToken}; path=/; max-age=28800`;
       // Use the REAL role from the database (login response), NOT the selected card.
       // The card is decorative; security and UI must reflect the actual user.
-      document.cookie = `user_role=${data.data.user.role}; path=/; max-age=900`;
-      document.cookie = `user_name=${encodeURIComponent(data.data.user.name)}; path=/; max-age=900`;
+      document.cookie = `user_role=${data.data.user.role}; path=/; max-age=28800`;
+      document.cookie = `user_name=${encodeURIComponent(data.data.user.name)}; path=/; max-age=28800`;
       // Hard navigation so proxy sees the cookie immediately (no flash)
       window.location.href = "/";
     } catch {

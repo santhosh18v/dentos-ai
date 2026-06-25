@@ -22,7 +22,7 @@ export async function verifyPassword(
 }
 
 export function createAccessToken(payload: TokenPayload): string {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: "15m" });
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: "8h" });
 }
 
 export function verifyAccessToken(token: string): TokenPayload {
