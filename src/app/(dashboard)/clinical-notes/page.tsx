@@ -210,7 +210,7 @@ export default function ClinicalNotesPage() {
     if (!draft) return;
     setSaving(true);
     try {
-      await fetch(`/api/clinical-notes/${draft.id}`, {
+      const putRes = await fetch(`/api/clinical-notes/${draft.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -222,7 +222,9 @@ export default function ClinicalNotesPage() {
           prescription:     draft.prescription,
         }),
       });
-      await fetch(`/api/clinical-notes/${draft.id}/approve`, { method: "PUT" });
+      if (!putRes.ok) throw new Error(`Save failed: ${putRes.status}`);
+      const approveRes = await fetch(`/api/clinical-notes/${draft.id}/approve`, { method: "PUT" });
+      if (!approveRes.ok) throw new Error(`Approve failed: ${approveRes.status}`);
       setDraft(null);
       setRawText("");
       setAppointmentId("");
